@@ -2,11 +2,12 @@ use std::{env, sync::mpsc};
 
 use crate::settings;
 
+use super::controller_manager::{Controller, ControllerManager};
 #[cfg(target_os = "linux")]
 use super::linux_integration;
 use super::{
-    communication::ServerStatus, spawn_thread, test_integration::test_controllers, Communication,
-    Status,
+    communication::ServerStatus, integration::joycon_thread, test_integration::test_controllers,
+    wiimote_integration::wiimote_thread, ChannelData, Communication, Status,
 };
 
 pub struct Wrapper {
@@ -41,7 +42,7 @@ impl Wrapper {
             std::thread::spawn(move || linux_integration::spawn_thread(tx, settings));
         }
 
-        std::thread::spawn(move || spawn_thread(tx, settings));
+        std::thread::spawn(move || Self::spawn_controller_thread(tx, settings));
 
         Self {
             status_rx,
@@ -53,5 +54,32 @@ impl Wrapper {
     }
     pub fn poll_server(&self) -> Option<ServerStatus> {
         self.server_rx.try_iter().last()
+    }
+
+    fn spawn_controller_thread(tx: mpsc::Sender<ChannelData>, settings: settings::Handler) {
+        let manager = ControllerManager::get_instance();
+        let devices = {
+            let lock = manager.lock();
+            match lock {
+                Ok(manager) => manager.new_devices_receiver(),
+                Err(_) => return,
+            }
+        };
+        for controller in &devices {
+            let tx = tx.clone();
+            let settings = settings.clone();
+            std::thread::spawn(move || Self::forward_to_integration(controller, tx, settings));
+        }
+    }
+
+    fn forward_to_integration(
+        controller: Controller,
+        tx: mpsc::Sender<ChannelData>,
+        settings: settings::Handler,
+    ) {
+        match controller {
+            Controller::JoyCon(joy_con) => joycon_thread(joy_con, tx, settings),
+            Controller::Wiimote(wiimote) => wiimote_thread(wiimote, tx, settings),
+        }
     }
 }

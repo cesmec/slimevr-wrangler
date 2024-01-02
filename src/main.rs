@@ -221,9 +221,10 @@ impl MainState {
 
         let list = list.push(
             container(text(format!(
-                "Searching for Joycon controllers{}\n\
-                    Please pair controllers in the bluetooth \
-                    settings of Windows if they don't show up here.",
+                "Searching for Joycon and Wii controllers{}\n\n\
+                    Please pair Switch controllers in the bluetooth \
+                    settings of Windows if they don't show up here.\n\
+                    Press the 1 and 2 buttons on the Wii remote to pair it (MotionPlus is required).",
                 ".".repeat(self.search_dots)
             )))
             .padding(10),

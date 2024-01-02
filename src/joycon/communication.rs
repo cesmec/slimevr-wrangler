@@ -92,9 +92,15 @@ impl ChannelData {
 }
 
 #[derive(Debug, Clone)]
+pub enum ImuData {
+    SingleEntry(JoyconAxisData),
+    MultipleEntries([JoyconAxisData; 3]),
+}
+
+#[derive(Debug, Clone)]
 pub enum ChannelInfo {
     Connected(JoyconDesign),
-    ImuData([JoyconAxisData; 3]),
+    ImuData(ImuData),
     Battery(Battery),
     Reset,
     Disconnected,
@@ -248,9 +254,18 @@ impl Communication {
             }
             ChannelInfo::ImuData(imu_data) => {
                 if let Some(device) = self.devices.get_mut(&sn) {
-                    for frame in imu_data {
-                        device.imu.update(frame);
-                    }
+                    let last_entry = match imu_data {
+                        ImuData::SingleEntry(frame) => {
+                            device.imu.update(frame);
+                            frame
+                        }
+                        ImuData::MultipleEntries(frames) => {
+                            for frame in frames {
+                                device.imu.update(frame);
+                            }
+                            frames[2]
+                        }
+                    };
                     device.imu_times.push(Instant::now());
 
                     let joycon_rotation = self.settings.load().joycon_rotation_get(&sn);
@@ -273,7 +288,7 @@ impl Communication {
                         .send_to(&rotation_packet.to_bytes().unwrap(), self.address)
                         .unwrap();
 
-                    let acc = calc_acceleration(device.imu.rotation, &imu_data[2], rad_rotation);
+                    let acc = calc_acceleration(device.imu.rotation, &last_entry, rad_rotation);
                     let acceleration_packet = PacketType::Acceleration {
                         packet_id: 0,
                         vector: (acc.x as f32, acc.y as f32, acc.z as f32),

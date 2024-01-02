@@ -1,6 +1,6 @@
 use super::communication::ChannelData;
 use super::imu::JoyconAxisData;
-use super::{Battery, ChannelInfo, JoyconDesign, JoyconDesignType};
+use super::{Battery, ChannelInfo, ImuData, JoyconDesign, JoyconDesignType};
 use crate::settings;
 use joycon_rs::joycon::device::calibration::imu::IMUCalibration;
 use joycon_rs::joycon::lights::{LightUp, Lights};
@@ -97,7 +97,7 @@ fn joycon_listen_loop(
                     });
                     tx.send(ChannelData::new(
                         serial_number.clone(),
-                        ChannelInfo::ImuData(imu_data),
+                        ChannelInfo::ImuData(ImuData::MultipleEntries(imu_data)),
                     ))
                     .unwrap();
                 }
@@ -112,7 +112,7 @@ fn joycon_listen_loop(
     }
 }
 
-fn joycon_thread(
+pub fn joycon_thread(
     d: Arc<Mutex<JoyConDevice>>,
     tx: mpsc::Sender<ChannelData>,
     settings: settings::Handler,
@@ -159,21 +159,5 @@ fn joycon_thread(
         }
         // Joycon was disconnected, check for reconnection after 1 second
         thread::sleep(Duration::from_millis(1000));
-    }
-}
-
-pub fn spawn_thread(tx: mpsc::Sender<ChannelData>, settings: settings::Handler) {
-    let manager = JoyConManager::get_instance();
-    let devices = {
-        let lock = manager.lock();
-        match lock {
-            Ok(manager) => manager.new_devices(),
-            Err(_) => return,
-        }
-    };
-    for d in devices.iter() {
-        let tx = tx.clone();
-        let settings = settings.clone();
-        thread::spawn(move || joycon_thread(d, tx, settings));
     }
 }

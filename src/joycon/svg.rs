@@ -10,12 +10,18 @@ use std::{
 static LEFT: &str = include_str!("../../assets/joycon-left.svg");
 static RIGHT: &str = include_str!("../../assets/joycon-right.svg");
 static PRO: &str = include_str!("../../assets/pro-controller.svg");
+static WIIMOTE: &str = include_str!("../../assets/wiimote-missing-motion-plus.svg");
+static WIIMOTE_EXTERNAL_MOTION_PLUS: &str = include_str!("../../assets/wiimote-motion-plus.svg");
+static WIIMOTE_PLUS: &str = include_str!("../../assets/wiimote-plus.svg");
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum JoyconDesignType {
     Left,
     Right,
     Pro,
+    Wiimote,
+    WiimoteExternalMotionPlus,
+    WiimotePlus,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -29,6 +35,9 @@ fn generate(design: &JoyconDesign, rotation: i32) -> Handle {
         JoyconDesignType::Left => LEFT,
         JoyconDesignType::Right => RIGHT,
         JoyconDesignType::Pro => PRO,
+        JoyconDesignType::Wiimote => WIIMOTE,
+        JoyconDesignType::WiimoteExternalMotionPlus => WIIMOTE_EXTERNAL_MOTION_PLUS,
+        JoyconDesignType::WiimotePlus => WIIMOTE_PLUS,
     }
     .replace("#3fa9f5", &design.color)
     .replace("rotate(0", &format!("rotate({:}", (rotation + 90) % 360));
