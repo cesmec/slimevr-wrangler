@@ -1,6 +1,6 @@
 use super::communication::ChannelData;
 use super::imu::JoyconAxisData;
-use super::{Battery, ChannelInfo, JoyconDesign, JoyconDesignType};
+use super::{Battery, ChannelInfo, ImuData, JoyconDesign, JoyconDesignType};
 use crate::settings;
 use joycon_rs::joycon::device::calibration::imu::IMUCalibration;
 use joycon_rs::joycon::lights::{LightUp, Lights};
@@ -97,7 +97,7 @@ fn joycon_listen_loop(
                     });
                     tx.send(ChannelData::new(
                         serial_number.clone(),
-                        ChannelInfo::ImuData(imu_data),
+                        ChannelInfo::ImuData(ImuData::MultipleEntries(imu_data)),
                     ))
                     .unwrap();
                 }

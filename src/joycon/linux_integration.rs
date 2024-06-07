@@ -11,7 +11,7 @@ use upower_dbus::{DeviceProxy, UPowerProxy};
 use crate::settings;
 
 use super::{
-    imu::JoyconAxisData, Battery, ChannelData, ChannelInfo, JoyconDesign, JoyconDesignType,
+    imu::JoyconAxisData, Battery, ChannelData, ChannelInfo, ImuData, JoyconDesign, JoyconDesignType,
 };
 
 // Resolution definitions from hid-nintendo.c from linux:
@@ -124,7 +124,7 @@ async fn imu_listener(
             count = 0;
             tx.send(ChannelData {
                 serial_number: mac.clone(),
-                info: ChannelInfo::ImuData(imu_array),
+                info: ChannelInfo::ImuData(ImuData::MultipleEntries(imu_array)),
             })
             .unwrap();
         }
