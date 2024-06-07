@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs><style>.cls-1{fill:#3fa9f5;}</style></defs>
+  <g id="Layer_1" data-name="Layer 1" transform="rotate(0 128 128)">
+    <g id="Wiimote" data-name="Wiimote" transform="translate(102 0)">
+      <rect
+        id="body"
+        class="cls-1"
+        width="51.479248"
+        height="210.58781"
+        x="0.057699952"
+        y="0.090365618"
+        ry="8.4866066" />
+      <path
+        id="dpad"
+        d="m 21.897953,29.499555 -0.041,-8.613164 8.59011,0.01395 0.0276,8.567208 h 8.8842 l 0.10999,8.541869 -9.09635,-0.109981 -0.10996,8.978551 h -8.19767 l -0.10998,-9.145137 -8.89297,0.09054 -0.0783,-8.343642 z"
+      />
+      <circle
+        id="button_power"
+        cx="12.60604"
+        cy="9.2439795"
+        r="4.1216011" />
+      <circle
+        id="button_a"
+        cx="26.292875"
+        cy="65.235542"
+        r="8.1654367" />
+      <circle
+        id="button_home"
+        cx="26.137358"
+        cy="100.54134"
+        r="3.3439405" />
+      <circle
+        id="button_minus"
+        cx="11.828429"
+        cy="100.38582"
+        r="4.1216011" />
+      <circle
+        id="button_plus"
+        cx="40.686199"
+        cy="100.17522"
+        r="4.1216011" />
+      <circle
+        id="button_one"
+        cx="25.904051"
+        cy="154.58875"
+        r="5.7546883" />
+      <circle
+        id="button_two"
+        cx="26.250319"
+        cy="173.3454"
+        r="5.7546883" />
+    </g>
+  </g>
+</svg>
