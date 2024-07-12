@@ -9,6 +9,8 @@ mod integration;
 mod linux_integration;
 use integration::spawn_thread;
 mod test_integration;
+mod wiimote_integration;
+use wiimote_integration::spawn_wiimote_thread;
 
 mod wrapper;
 pub use wrapper::*;

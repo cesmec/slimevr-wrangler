@@ -24,6 +24,7 @@ use std::{
     net::SocketAddr,
     time::{Duration, Instant},
 };
+use wiimote_rs::prelude::WiimoteManager;
 mod joycon;
 mod steam_blacklist;
 use steam_blacklist as blacklist;
@@ -56,7 +57,7 @@ pub fn main() -> iced::Result {
         antialiasing: true,
         ..Settings::default()
     };
-    match MainState::run(settings) {
+    let result = match MainState::run(settings) {
         Ok(a) => Ok(a),
         Err(e) => {
             println!("{e:?}");
@@ -65,7 +66,9 @@ pub fn main() -> iced::Result {
             let _ = io::stdin().read(&mut [0u8]).unwrap();
             Err(e)
         }
-    }
+    };
+    WiimoteManager::cleanup();
+    result
 }
 
 #[derive(Debug, Clone)]
@@ -221,9 +224,10 @@ impl MainState {
 
         let list = list.push(
             container(text(format!(
-                "Searching for Joycon controllers{}\n\
-                    Please pair controllers in the bluetooth \
-                    settings of Windows if they don't show up here.",
+                "Searching for Joycon and Wii controllers{}\n\n\
+                    Please pair Switch controllers in the bluetooth \
+                    settings of Windows if they don't show up here.\n\
+                    Press the 1 and 2 buttons on the Wii remote to pair it (MotionPlus is required).",
                 ".".repeat(self.search_dots)
             )))
             .padding(10),
