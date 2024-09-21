@@ -24,6 +24,14 @@ impl Imu {
             )),
         }
     }
+    pub fn new_wiimote() -> Self {
+        Self {
+            vqf: VQFBuilder::new(0.01f64).build(),
+            rotation: UnitQuaternion::new_unchecked(Quaternion::new(
+                1.0f64, 0.0f64, 0.0f64, 0.0f64,
+            )),
+        }
+    }
     pub fn update(&mut self, frame: JoyconAxisData) {
         let gyro = Vector3::new(frame.gyro_x, frame.gyro_y, frame.gyro_z);
         let acc = Vector3::new(frame.accel_x, frame.accel_y, frame.accel_z);

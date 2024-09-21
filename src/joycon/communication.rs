@@ -228,9 +228,14 @@ impl Communication {
         let sn = msg.serial_number;
         match msg.info {
             ChannelInfo::Connected(design) => {
+                let imu = if design.design_type.is_wiimote() {
+                    Imu::new_wiimote()
+                } else {
+                    Imu::new()
+                };
                 if self.devices.contains_key(&sn) {
                     let device = self.devices.get_mut(&sn).unwrap();
-                    device.imu = Imu::new();
+                    device.imu = imu;
                     device.imu_times = vec![];
                     return;
                 }
@@ -241,7 +246,7 @@ impl Communication {
                     self.devices.len() as _
                 };
                 let device = Device {
-                    imu: Imu::new(),
+                    imu,
                     design,
                     send_id,
                     battery: Battery::Full,
@@ -255,7 +260,11 @@ impl Communication {
             ChannelInfo::ImuData(imu_data) => {
                 if let Some(device) = self.devices.get_mut(&sn) {
                     let last_entry = match imu_data {
-                        ImuData::SingleEntry(frame) => {
+                        ImuData::SingleEntry(mut frame) => {
+                            if device.design.design_type.is_wiimote() {
+                                // Correct gyro if the update rate is lower than expected
+                                Self::scale_wiimote_frame(device, &mut frame);
+                            }
                             device.imu.update(frame);
                             frame
                         }
@@ -319,12 +328,27 @@ impl Communication {
         }
     }
 
+    fn scale_wiimote_frame(device: &Device, frame: &mut JoyconAxisData) {
+        const EXPECTED_UPDATE_RATE: f64 = 100.0;
+        let discard_before = Instant::now().checked_sub(Duration::from_secs(1)).unwrap();
+        let updates_last_second = device.imu_times
+            .iter()
+            .filter(|&time| time > &discard_before)
+            .count();
+        let factor = EXPECTED_UPDATE_RATE / usize::max(updates_last_second, 1) as f64;
+        frame.gyro_x *= factor;
+        frame.gyro_y *= factor;
+        frame.gyro_z *= factor;
+    }
+
     fn update_statuses(&mut self) {
         let discard_before = Instant::now().checked_sub(Duration::from_secs(1)).unwrap();
         for device in self.devices.values_mut() {
             device.imu_times.retain(|t| t > &discard_before);
+            let is_wiimote = device.design.design_type.is_wiimote();
+            let healthy_update_rate = if is_wiimote { 80 } else { 55 };
             match device.imu_times.len() {
-                x if x >= 55 => {
+                x if x >= healthy_update_rate => {
                     device.status = DeviceStatus::Healthy;
                 }
                 x if x > 0 => {

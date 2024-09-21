@@ -11,6 +11,11 @@ use wiimote_rs::prelude::*;
 
 use super::ImuData;
 
+// https://wiibrew.org/wiki/Wiimote#Data_Reporting
+// Core Buttons and Accelerometer with 16 Extension Bytes
+const MODE_ACCELEROMETER_AND_EXTENSION: u8 = 0x35;
+const GYRO_SCALE_FACTOR: f64 = 0.22;
+
 struct CalibrationData {
     calibrated: bool,
     start: Instant,
@@ -106,11 +111,13 @@ fn wiimote_listen_loop(
 
         let result = d.lock().unwrap().read_timeout(100);
         match result {
-            Ok(report) => {
-                if let InputReport::StatusInformation(status) = report {
+            Ok(report) => match &report {
+                InputReport::StatusInformation(status) => {
+                    // https://wiibrew.org/wiki/Wiimote#0x20:_Status
                     // If this report is received when not requested, the application 'MUST'
                     // send report 0x12 to change the data reporting mode, otherwise no further data reports will be received.
                     set_reporting_mode_accelerometer_and_extension(d);
+
                     let battery_level = convert_battery(status.battery_level());
                     if Some(battery_level) != last_battery {
                         last_battery = Some(battery_level);
@@ -120,7 +127,8 @@ fn wiimote_listen_loop(
                         ))
                         .unwrap();
                     }
-                } else if let InputReport::DataReport(0x35, wiimote_data) = &report {
+                }
+                InputReport::DataReport(MODE_ACCELEROMETER_AND_EXTENSION, wiimote_data) => {
                     let buttons = wiimote_data.buttons();
                     if buttons.contains(ButtonData::A | ButtonData::B) {
                         println!("A and B pressed, starting calibration soon...");
@@ -132,7 +140,7 @@ fn wiimote_listen_loop(
                             .unwrap();
                     }
 
-                    let gyro_scale = settings.load().joycon_scale_get(&serial_number);
+                    let gyro_scale = settings.load().joycon_scale_get(&serial_number) * GYRO_SCALE_FACTOR;
 
                     if let Some((imu_data, motion_plus_data)) = get_axis_data(
                         wiimote_data,
@@ -149,6 +157,7 @@ fn wiimote_listen_loop(
                         motion_plus_calibration.push_data(motion_plus_data, d);
                     }
                 }
+                _ => {}
             }
             Err(WiimoteError::Disconnected) => {
                 tx.send(ChannelData::new(serial_number, ChannelInfo::Disconnected))
@@ -196,7 +205,7 @@ fn get_axis_data(
 fn set_reporting_mode_accelerometer_and_extension(d: &Arc<Mutex<WiimoteDevice>>) -> bool {
     let reporting_mode = OutputReport::DataReportingMode(DataReporingMode {
         continuous: true,
-        mode: 0x35, // Core Buttons and Accelerometer with 16 Extension Bytes
+        mode: MODE_ACCELEROMETER_AND_EXTENSION,
     });
     d.lock().unwrap().write(&reporting_mode).is_ok()
 }

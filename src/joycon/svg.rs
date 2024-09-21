@@ -24,6 +24,17 @@ pub enum JoyconDesignType {
     WiimotePlus,
 }
 
+impl JoyconDesignType {
+    pub const fn is_wiimote(self) -> bool {
+        matches!(
+            self,
+            Self::Wiimote
+                | Self::WiimoteExternalMotionPlus
+                | Self::WiimotePlus
+        )
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct JoyconDesign {
     pub color: String,
