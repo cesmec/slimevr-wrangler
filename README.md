@@ -5,7 +5,7 @@
 [![Discord Server](https://img.shields.io/discord/817184208525983775?color=7389D8&label=Discord%20&logo=discord&logoColor=FFFFFF)](https://discord.gg/slimevr)
 </div>
 
-Use Joy-Con's as SlimeVR trackers, enabling you to make a full body system with your existing devices. Combine with DIY SlimeVR trackers, or phones using owoTrack.
+Use Joy-Con's and Wii remotes as SlimeVR trackers, enabling you to make a full body system with your existing devices. Combine with DIY SlimeVR trackers, or phones using owoTrack.
 
 ![Screenshot of the app running and tracking a single Joy-Con](screenshot.png)
 
@@ -15,17 +15,18 @@ You need bluetooth on your computer.
 * Download [SlimeVR Wrangler](https://github.com/carl-anders/slimevr-wrangler/releases/latest/download/slimevr-wrangler.exe)
 * Start both the SlimeVR server and SlimeVR Wrangler 
 * Connect your Joy-Con trackers to the computer ([Guide for Windows](https://www.digitaltrends.com/gaming/how-to-connect-a-nintendo-switch-controller-to-a-pc/))
+* For Wii remotes, press and hold the 1+2 buttons on the remote while SlimeVR Wrangler is running until it connects to the computer
 * Make sure the SlimeVR server is running, then press "Search for Joycons" inside SlimeVR Wrangler
-* The Joy-Con should show up in the window!
+* The Joy-Con or Wii remote should show up in the window!
 * Follow the SlimeVR documentation to set up the new tracker, with the direction below:
 
 ### Mounting
 
-Attach the Joy-Con's in the direction that works best for you, use the SlimeVR guide to see the positions on your body.
+Attach the controllers in the direction that works best for you, use the SlimeVR guide to see the positions on your body.
 
 Keep the joystick pointed outwards, it should not poke into your skin.
 
-After connecting the Joy-Con's in the program, rotate them in the program to be the same rotation as they are if you are standing up.
+After connecting the controllers in the program, rotate them in the program to be the same rotation as they are if you are standing up.
 
 ## Issues
 
